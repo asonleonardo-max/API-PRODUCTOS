@@ -1,13 +1,16 @@
+CREATE DATABASE IF NOT EXISTS tienda;
 USE tienda;
 
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(100) NOT NULL UNIQUE,
-  password VARCHAR(100) NOT NULL,
+  password VARCHAR(100) NOT NULL, -- guarda el hash de bcrypt, nunca la clave
   rol VARCHAR(20) NOT NULL DEFAULT 'usuario'
 );
 
--- password guarda el hash, nunca la clave:
--- await bcrypt.hash(password, 10)
-
-SELECT id, email, rol FROM usuarios;
+CREATE TABLE IF NOT EXISTS productos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  precio DECIMAL(10,2) NOT NULL,
+  stock INT NOT NULL DEFAULT 0
+);

@@ -1,9 +1,11 @@
 // src/server.js
 import express from "express";
+import cors from "cors";
 import authRouter from "./routes/auth.routes.js";
 import productosRouter from "./routes/productos.routes.js";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use(authRouter);

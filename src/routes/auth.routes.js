@@ -1,21 +1,19 @@
+// src/routes/auth.routes.js
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "../db.js";
+import { validarRegistro, validarLogin, hayErrores } from "../validaciones.js";
 
 const router = Router();
 
-// POST /registro -> 201 | 400 | 409
+// POST /registro -> 201 | 400
 router.post("/registro", async (req, res) => {
   try {
-    const { email, password, rol } = req.body ?? {};
-    if (
-      typeof email !== "string" || email.trim() === "" ||
-      typeof password !== "string" || password.length < 4
-    ) {
-      return res.status(400).json({ error: "Email y password válidos son obligatorios" });
-    }
+    const errores = validarRegistro(req.body);
+    if (hayErrores(errores)) return res.status(400).json({ errores });
 
+    const { email, password, rol } = req.body;
     const rolFinal = rol === "admin" ? "admin" : "usuario";
     const hash = await bcrypt.hash(password, 10);
     const [resultado] = await db.query(
@@ -25,7 +23,7 @@ router.post("/registro", async (req, res) => {
     res.status(201).json({ id: resultado.insertId, email: email.trim(), rol: rolFinal });
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ error: "El email ya está registrado" });
+      return res.status(400).json({ errores: { email: "El email ya está registrado" } });
     }
     console.error(error.message);
     res.status(500).json({ error: "Error en la base de datos" });
@@ -35,11 +33,10 @@ router.post("/registro", async (req, res) => {
 // POST /login -> 200 { token } | 400 | 401
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body ?? {};
-    if (typeof email !== "string" || typeof password !== "string") {
-      return res.status(400).json({ error: "Email y password son obligatorios" });
-    }
+    const errores = validarLogin(req.body);
+    if (hayErrores(errores)) return res.status(400).json({ errores });
 
+    const { email, password } = req.body;
     const [filas] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email.trim()]);
     const usuario = filas[0];
     if (!usuario) {
