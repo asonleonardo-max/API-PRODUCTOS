@@ -1,14 +1,13 @@
-CREATE DATABASE tienda;
 USE tienda;
 
-CREATE TABLE productos (
+CREATE TABLE usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(100) NOT NULL,
-  precio DECIMAL(10,2) NOT NULL,
-  stock INT NOT NULL DEFAULT 0
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(100) NOT NULL,
+  rol VARCHAR(20) NOT NULL DEFAULT 'usuario'
 );
 
-INSERT INTO productos (nombre, precio, stock)
-VALUES ('Teclado', 80000, 10), ('Mouse', 35000, 25);
+-- password guarda el hash, nunca la clave:
+-- await bcrypt.hash(password, 10)
 
-SELECT * FROM productos;
+SELECT id, email, rol FROM usuarios;
